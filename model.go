@@ -6,6 +6,8 @@ import (
 
 const (
 	col = "col"
+	pk = "pk"
+	version = "version"
 	warp = "warp"
 )
 
