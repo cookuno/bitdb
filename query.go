@@ -32,6 +32,15 @@ func (self *query) List(targetSlice interface{}) error {
 	fieldMap := make(map[string]field)
 	for i := 0; i < sliceElementType.NumField(); i++ {
 		colTag := strings.TrimSpace(sliceElementType.Field(i).Tag.Get(col))
+		if colTag == "" {
+			colTag = strings.TrimSpace(sliceElementType.Field(i).Tag.Get(pk))
+		}
+		if colTag == "" {
+			colTag = strings.TrimSpace(sliceElementType.Field(i).Tag.Get(version))
+		}
+		if colTag == "" {
+			continue
+		}
 		warpTag := strings.TrimSpace(sliceElementType.Field(i).Tag.Get(warp))
 		fieldKind := sliceElementType.Field(i).Type.Kind()
 		f := field{
@@ -62,7 +71,7 @@ func (self *query) List(targetSlice interface{}) error {
 	for i := 0 ; i < columnLen ; i ++  {
 		column := columns[i]
 		if t, ok := fieldMap[column] ; ok {
-			if strings.TrimSpace(t.warp) == "json" && t.kind == reflect.Struct{
+			if strings.TrimSpace(t.warp) == "jsonb" && t.kind == reflect.Struct{
 				var cell []byte
 				scans = append(scans, &cell)
 			} else {
@@ -105,7 +114,7 @@ func (self *query) List(targetSlice interface{}) error {
 			column := columns[i]
 			val := scans[i]
 			if t, ok := fieldMap[column] ; ok {
-				if strings.TrimSpace(t.warp) == "json" && t.kind == reflect.Struct{
+				if strings.TrimSpace(t.warp) == "jsonb" && t.kind == reflect.Struct{
 					v := reflect.ValueOf(val).Elem()
 					if v.Kind() == reflect.String {
 						str := (val).(string)
@@ -188,6 +197,15 @@ func (self *query) loadInterface(elementValue reflect.Value) error {
 	fieldMap := make(map[string]field)
 	for i := 0; i < elementType.NumField(); i++ {
 		colTag := strings.TrimSpace(elementType.Field(i).Tag.Get(col))
+		if colTag == "" {
+			colTag = strings.TrimSpace(elementType.Field(i).Tag.Get(pk))
+		}
+		if colTag == "" {
+			colTag = strings.TrimSpace(elementType.Field(i).Tag.Get(version))
+		}
+		if colTag == "" {
+			continue
+		}
 		warpTag := strings.TrimSpace(elementType.Field(i).Tag.Get(warp))
 		fieldKind := elementType.Field(i).Type.Kind()
 		f := field{
@@ -218,7 +236,7 @@ func (self *query) loadInterface(elementValue reflect.Value) error {
 	for i := 0 ; i < columnLen ; i ++  {
 		column := columns[i]
 		if t, ok := fieldMap[column] ; ok {
-			if strings.TrimSpace(t.warp) == "json" && t.kind == reflect.Struct{
+			if strings.TrimSpace(t.warp) == "jsonb" && t.kind == reflect.Struct{
 				var cell []byte
 				scans = append(scans, &cell)
 			} else {
@@ -260,7 +278,7 @@ func (self *query) loadInterface(elementValue reflect.Value) error {
 			column := columns[i]
 			val := scans[i]
 			if t, ok := fieldMap[column] ; ok {
-				if strings.TrimSpace(t.warp) == "json" && t.kind == reflect.Struct{
+				if strings.TrimSpace(t.warp) == "jsonb" && t.kind == reflect.Struct{
 					v := reflect.ValueOf(val).Elem()
 					if v.Kind() == reflect.String {
 						str := (val).(string)
@@ -294,7 +312,13 @@ func (self *query) loadInterface(elementValue reflect.Value) error {
 			}
 			for i := 0 ; i < elementType.NumField() ; i ++  {
 				f := elementValue.Field(i)
-				colTag := elementType.Field(i).Tag.Get(col)
+				colTag := strings.TrimSpace(elementType.Field(i).Tag.Get(col))
+				if colTag == "" {
+					colTag = strings.TrimSpace(elementType.Field(i).Tag.Get(pk))
+				}
+				if colTag == "" {
+					colTag = strings.TrimSpace(elementType.Field(i).Tag.Get(version))
+				}
 				if field, ok := fieldValueMap[colTag]; ok {
 					f.Set(reflect.Indirect(reflect.ValueOf(field.value)))
 				}
@@ -374,7 +398,13 @@ func rowElementMap(elem interface{}, fieldMap map[string]field)  {
 	t := reflect.TypeOf(elem).Elem()
 	for i := 0 ; i < t.NumField() ; i ++  {
 		f := v.Field(i)
-		colTag := t.Field(i).Tag.Get(col)
+		colTag := strings.TrimSpace(t.Field(i).Tag.Get(col))
+		if colTag == "" {
+			colTag = strings.TrimSpace(t.Field(i).Tag.Get(pk))
+		}
+		if colTag == "" {
+			colTag = strings.TrimSpace(t.Field(i).Tag.Get(version))
+		}
 		if field, ok := fieldMap[colTag]; ok {
 			f.Set(reflect.Indirect(reflect.ValueOf(field.value)))
 		}
